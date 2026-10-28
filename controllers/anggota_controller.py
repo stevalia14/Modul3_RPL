@@ -10,7 +10,7 @@ class AnggotaController:
 
         # Binding tombol di View dengan fungsi di Controller
         self.view.btn_simpan.configure(command=self.simpan_data)
-        self.view.btn_hapus.configure(command=self.hapus_data)
+        self.view.btn_delete.configure(command=self.hapus_data)
         self.view.btn_update.configure(command=self.perbarui_data)
         self.view.tabel.bind("<<TreeviewSelect>>", self.pilih_data)
 
@@ -23,12 +23,11 @@ class AnggotaController:
         data_anggota = self.model.get_all_anggota()
 
         for a in data_anggota:
-            self.view.tabel.insert("", "end", values=(a['id_anggota'], a['nama'], a['alamat'], a['no_telepon']))
+            self.view.tabel.insert("", "end", values=(a['id_anggota'], a['nama'], a['alamat']))
 
     def bersihkan_form(self):
         self.view.entry_nama.delete(0, 'end')
         self.view.entry_alamat.delete(0, 'end')
-        self.view.entry_telepon.delete(0, 'end')
 
     def pilih_data(self, event):
         terpilih = self.view.tabel.selection()
@@ -39,18 +38,16 @@ class AnggotaController:
         self.bersihkan_form()
         self.view.entry_nama.insert(0, nilai[1])
         self.view.entry_alamat.insert(0, nilai[2])
-        self.view.entry_telepon.insert(0, nilai[3])
 
     def simpan_data(self):
         nama = self.view.entry_nama.get()
         alamat = self.view.entry_alamat.get()
-        telepon = self.view.entry_telepon.get()
 
-        if not nama or not alamat or not telepon:
+        if not nama or not alamat:
             messagebox.showwarning("Peringatan", "Semua kolom form harus diisi!")
             return
 
-        berhasil = self.model.create_anggota(nama, alamat, telepon)
+        berhasil = self.model.create_anggota(nama, alamat)
 
         if berhasil:
             messagebox.showinfo("Sukses", "Data anggota berhasil disimpan!")
@@ -85,13 +82,12 @@ class AnggotaController:
         id_anggota = self.view.tabel.item(terpilih[0])['values'][0]
         nama = self.view.entry_nama.get()
         alamat = self.view.entry_alamat.get()
-        telepon = self.view.entry_telepon.get()
 
-        if not nama or not alamat or not telepon:
+        if not nama or not alamat:
             messagebox.showwarning("Peringatan", "Semua kolom form harus diisi!")
             return
 
-        berhasil = self.model.update_anggota(id_anggota, nama, alamat, telepon)
+        berhasil = self.model.update_anggota(id_anggota, nama, alamat)
 
         if berhasil:
             messagebox.showinfo("Sukses", "Data anggota berhasil diperbarui!")
