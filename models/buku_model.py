@@ -1,3 +1,4 @@
+from mysql.connector import Error
 from config.database import Database
 
 class BukuModel:
@@ -33,24 +34,33 @@ class BukuModel:
 
     def update_buku(self, id_buku, judul, penulis, tahun_terbit):
         if self.conn:
-            cursor = self.conn.cursor()
-            query = f"""
-                UPDATE {self.table_name}
-                SET judul=%s, penulis=%s, tahun_terbit=%s
-                WHERE id_buku=%s
-            """
-            cursor.execute(query, (judul, penulis, tahun_terbit, id_buku))
-            self.conn.commit()
-            cursor.close()
-            return True
+            try:
+                cursor = self.conn.cursor()
+                query = f"""
+                    UPDATE {self.table_name}
+                    SET judul = %s, penulis = %s, tahun_terbit = %s
+                    WHERE id_buku = %s
+                """
+                cursor.execute(query, (judul, penulis, tahun_terbit, id_buku))
+                self.conn.commit()
+                cursor.close()
+                return True
+            except Error as e:
+                self.conn.rollback()
+                print(f"Gagal memperbarui data: {e}")
         return False
 
-    def hapus_buku(self, id_buku):
+    def delete_buku(self, id_buku):
         if self.conn:
-            cursor = self.conn.cursor()
-            query = f"DELETE FROM {self.table_name} WHERE id_buku=%s"
-            cursor.execute(query, (id_buku,))
-            self.conn.commit()
-            cursor.close()
-            return True
+            try:
+                cursor = self.conn.cursor()
+                query = f"DELETE FROM {self.table_name} WHERE id_buku = %s"
+                cursor.execute(query, (id_buku,))
+                self.conn.commit()
+                cursor.close()
+                return True
+            except Error as e:
+                # Contoh: buku masih dipakai di tabel peminjaman (Foreign Key)
+                self.conn.rollback()
+                print(f"Gagal menghapus data: {e}")
         return False
